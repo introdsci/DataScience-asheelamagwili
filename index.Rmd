@@ -8,7 +8,7 @@ output:
 
 ## Abstract
 
-In under 250 words give a brief summary of the project so far.
+I am interested in looking into the affects of air pollution on different environmental factors.
 
 ### 1. Discovery and Data Preparation
 

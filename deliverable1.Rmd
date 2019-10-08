@@ -6,23 +6,32 @@ output:
     df_print: paged
 ---
 
-## Introduction
-My interest in researching data about the Earth's air pollution levels between 2000 and 2016 were motivated by the current climate crisis. Worldwide, there are climate strikes happening due to the lack of care society has given to our planet.
+# Introduction
+Researching data on air pollution is motivated by the current climate crisis. Worldwide, there are climate strikes happening due to the lack of care society has given to our planet. 
 
-## Data
-The current dataset included are annual emission rates of toxic air pollutant chemicals like carbon dioxide, sulfur dioxide, ozone, and nitrogen oxides.
+# Data
+The current dataset included are annual emission rates recorded in hourly increments of toxic air pollutant chemicals like carbon dioxide, sulfur dioxide, ozone, and nitrogen oxides.
 
+### Side Note
+The necessary dataset used in the project is too large to include and therefore will need to be downloaded locally before hand. In this project, the dataset will be referred to as "uspollution.csv"
+
+## Load Libraries
+The following libraries are needed for cleaning and visualizing data in this first phase.
 ```{r}
 library("tidyverse")
 library("ggplot2")
+```
+
+## Load Data
+Load in the dataset from the source and call it "pollution"
+```{r}
 pollution <- read_csv("~/Documents/Fall2019/CSCI385/Project/uspollution.csv")
 ```
 
-### Source
+## Source
+This dataset's source is the Air Markets Program Database from the United States Environmental Protection Agency. Some possible limitations of this data may be that it is concentrated in one area.
 
-This dataset's source was in the Air Markets Program Database from the United States Environmental Protection Agency. Some possible limitations of this data may be that it is concentrated in one area.
-
-### Variables
+## Variables
 
 This dataset consists of twelve variables, listed below:
 ```{r}
@@ -37,11 +46,11 @@ Non-obvious variables are described respectively for each pollutant below:
 **5. 1st Max Hour: ** The hour (on a 24-hour clock) when the highest value for the day (the previous field) was taken.                 
 **6. AQI: ** The Air Quality Index for the day for the pollutant, if applicable.
 
-## Tidying Up
-### Minimize Variables
-Remove some unnecessary variables that we probably won't need.
+# Tidying Up
+## Minimize Variables
+Remove some unnecessary variables that we probably won't need for this study.
 
-1. Remove the pollutant units variable since it is redundant.
+1. Remove the pollutant units variable since it is redundant, all the values for each pollutant is the same throughout all the observations. It it more helpful to document what units each pollutant use rather than store this as an individual attribute.
 ```{r}
 pollution$`NO2 Units` <- NULL
 pollution$`O3 Units` <- NULL
@@ -49,7 +58,7 @@ pollution$`SO2 Units` <- NULL
 pollution$`CO Units` <- NULL
 ```
 
-2. Remove the first column since it is just a redundant row number variable
+2. Remove the first column since it is just a redundant row number variable, we don't need this because it is just numbering each observation.
 ```{r}
 pollution$X1 <- NULL
 ```
@@ -61,8 +70,7 @@ pollution$`County Code` <- NULL
 pollution$Address <- NULL
 ```
 
-
-### Variable Names
+## Variable Names
 Tidy up the variable names by making them consistent - one word and no spaces
 
 ```{r}
@@ -89,13 +97,14 @@ colnames(pollution)[colnames(pollution) == "CO 1st Max Hour"] <- "CO_max_hour"
 colnames(pollution)[colnames(pollution) == "CO AQI"] <- "CO_aqi"
 ```
 
-### Date
-Change the type of the variable "date" to a date and format it:
+## Date
+Change the type of the variable "date" from a list to a date using **as.Date()** and make sure it's format is consistent
 ```{r}
 pollution$date <- as.Date(pollution$date, "%m/%d/%y")
 ```
 
 ## Create Tables with Primary Keys
+Create new tables for each pollutant and the location for each observation. Each table should have "site_id" as it's primary key.
 ```{r}
 Location <- tibble(site_id = pollution$site_id, state = pollution$state, county = pollution$county, city = pollution$city, date = pollution$date)
 
@@ -108,4 +117,4 @@ SO2 <- tibble(site_id = pollution$site_id, mean = pollution$SO2_mean, max_value 
 CO <- tibble(site_id = pollution$site_id, mean = pollution$CO_mean, max_value = pollution$CO_max_value, max_hour = pollution$CO_max_hour, aqi = pollution$CO_aqi)
 ```
 
-
+# Visualization

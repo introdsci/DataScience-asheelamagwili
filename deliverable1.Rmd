@@ -1,0 +1,111 @@
+---
+title: "Discovery & Data Preparation"
+author: "Asheela Magwili"
+output:
+  html_document:
+    df_print: paged
+---
+
+## Introduction
+My interest in researching data about the Earth's air pollution levels between 2000 and 2016 were motivated by the current climate crisis. Worldwide, there are climate strikes happening due to the lack of care society has given to our planet.
+
+## Data
+The current dataset included are annual emission rates of toxic air pollutant chemicals like carbon dioxide, sulfur dioxide, ozone, and nitrogen oxides.
+
+```{r}
+library("tidyverse")
+library("ggplot2")
+pollution <- read_csv("~/Documents/Fall2019/CSCI385/Project/uspollution.csv")
+```
+
+### Source
+
+This dataset's source was in the Air Markets Program Database from the United States Environmental Protection Agency. Some possible limitations of this data may be that it is concentrated in one area.
+
+### Variables
+
+This dataset consists of twelve variables, listed below:
+```{r}
+cat(colnames(pollution),sep = "\n")
+```
+
+Non-obvious variables are described respectively for each pollutant below:                 
+**1. Site Num: ** A unique number within the county identifying the site.                 
+**2. Date Local: ** The calendar date of the average in Local Standard Time at the monitor.                 
+**3. Mean: ** The average (arithmetic mean) value including all data reported in the 8-hour block.                 
+**4. 1st Max Value: ** The highest value for the year.                 
+**5. 1st Max Hour: ** The hour (on a 24-hour clock) when the highest value for the day (the previous field) was taken.                 
+**6. AQI: ** The Air Quality Index for the day for the pollutant, if applicable.
+
+## Tidying Up
+### Minimize Variables
+Remove some unnecessary variables that we probably won't need.
+
+1. Remove the pollutant units variable since it is redundant.
+```{r}
+pollution$`NO2 Units` <- NULL
+pollution$`O3 Units` <- NULL
+pollution$`SO2 Units` <- NULL
+pollution$`CO Units` <- NULL
+```
+
+2. Remove the first column since it is just a redundant row number variable
+```{r}
+pollution$X1 <- NULL
+```
+
+3. Remove the State ID, County Code, and Address. We will not need it since we will be using the Site ID as our primary key.
+```{r}
+pollution$`State Code` <- NULL
+pollution$`County Code` <- NULL
+pollution$Address <- NULL
+```
+
+
+### Variable Names
+Tidy up the variable names by making them consistent - one word and no spaces
+
+```{r}
+colnames(pollution)[colnames(pollution) == "Site Num"] <- "site_id"
+colnames(pollution)[colnames(pollution) == "State"] <- "state"
+colnames(pollution)[colnames(pollution) == "County"] <- "county"
+colnames(pollution)[colnames(pollution) == "City"] <- "city"
+colnames(pollution)[colnames(pollution) == "Date Local"] <- "date"
+colnames(pollution)[colnames(pollution) == "NO2 Mean"] <- "NO2_mean"
+colnames(pollution)[colnames(pollution) == "NO2 1st Max Value"] <- "NO2_max_value"
+colnames(pollution)[colnames(pollution) == "NO2 1st Max Hour"] <- "NO2_max_hour"
+colnames(pollution)[colnames(pollution) == "NO2 AQI"] <- "NO2_aqi"
+colnames(pollution)[colnames(pollution) == "O3 Mean"] <- "O3_mean"
+colnames(pollution)[colnames(pollution) == "O3 1st Max Value"] <- "O3_max_value"
+colnames(pollution)[colnames(pollution) == "O3 1st Max Hour"] <- "O3_max_hour"
+colnames(pollution)[colnames(pollution) == "O3 AQI"] <- "O3_aqi"
+colnames(pollution)[colnames(pollution) == "SO2 Mean"] <- "SO2_mean"
+colnames(pollution)[colnames(pollution) == "SO2 1st Max Value"] <- "SO2_max_value"
+colnames(pollution)[colnames(pollution) == "SO2 1st Max Hour"] <- "SO2_max_hour"
+colnames(pollution)[colnames(pollution) == "SO2 AQI"] <- "SO2_aqi"
+colnames(pollution)[colnames(pollution) == "CO Mean"] <- "CO_mean"
+colnames(pollution)[colnames(pollution) == "CO 1st Max Value"] <- "CO_max_value"
+colnames(pollution)[colnames(pollution) == "CO 1st Max Hour"] <- "CO_max_hour"
+colnames(pollution)[colnames(pollution) == "CO AQI"] <- "CO_aqi"
+```
+
+### Date
+Change the type of the variable "date" to a date and format it:
+```{r}
+pollution$date <- as.Date(pollution$date, "%m/%d/%y")
+```
+
+## Create Tables with Primary Keys
+```{r}
+Location <- tibble(site_id = pollution$site_id, state = pollution$state, county = pollution$county, city = pollution$city, date = pollution$date)
+
+NO2 <- tibble(site_id = pollution$site_id, mean = pollution$NO2_mean, max_value = pollution$NO2_max_value, max_hour = pollution$NO2_max_hour, aqi = pollution$NO2_aqi)
+
+O3 <- tibble(site_id = pollution$site_id, mean = pollution$O3_mean, max_value = pollution$O3_max_value, max_hour = pollution$O3_max_hour, aqi = pollution$O3_aqi)
+
+SO2 <- tibble(site_id = pollution$site_id, mean = pollution$SO2_mean, max_value = pollution$SO2_max_value, max_hour = pollution$SO2_max_hour, aqi = pollution$SO2_aqi)
+
+CO <- tibble(site_id = pollution$site_id, mean = pollution$CO_mean, max_value = pollution$CO_max_value, max_hour = pollution$CO_max_hour, aqi = pollution$CO_aqi)
+```
+
+

@@ -6,13 +6,13 @@ output:
     df_print: paged
 ---
 
-# Introduction
+# **Introduction**
 Researching data on air pollution is motivated by the current climate crisis. Worldwide, there are climate strikes happening due to the lack of care society has given to our planet. 
 
-# Data
-The current dataset included are annual emission rates recorded in hourly increments of toxic air pollutant chemicals like carbon dioxide, sulfur dioxide, ozone, and nitrogen oxides.
+# **Data**
+The current dataset included are annual emission rates recorded in hourly increments of toxic air pollutant chemicals like carbon dioxide, sulfur dioxide, ozone, and nitrogen oxides at the ground level.
 
-### Side Note
+<span style="color:red">Side Note:</span>
 The necessary dataset used in the project is too large to include and therefore will need to be downloaded locally before hand. In this project, the dataset will be referred to as "uspollution.csv"
 
 ## Load Libraries
@@ -25,11 +25,11 @@ library("ggplot2")
 ## Load Data
 Load in the dataset from the source and call it "pollution"
 ```{r}
-pollution <- read_csv("~/Documents/Fall2019/CSCI385/Project/uspollution.csv")
+pollution <- read_csv("uspollution.csv")
 ```
 
 ## Source
-This dataset's source is the Air Markets Program Database from the United States Environmental Protection Agency. Some possible limitations of this data may be that it is concentrated in one area.
+This dataset's source is the Air Markets Program Database from the United States Environmental Protection Agency. Some possible limitations of this data may be that it is restricted to data collected only in the US.
 
 ## Variables
 
@@ -46,7 +46,7 @@ Non-obvious variables are described respectively for each pollutant below:
 **5. 1st Max Hour: ** The hour (on a 24-hour clock) when the highest value for the day (the previous field) was taken.                 
 **6. AQI: ** The Air Quality Index for the day for the pollutant, if applicable.
 
-# Tidying Up
+# **Tidying Up**
 ## Minimize Variables
 Remove some unnecessary variables that we probably won't need for this study.
 
@@ -108,13 +108,39 @@ Create new tables for each pollutant and the location for each observation. Each
 ```{r}
 Location <- tibble(site_id = pollution$site_id, state = pollution$state, county = pollution$county, city = pollution$city, date = pollution$date)
 
-NO2 <- tibble(site_id = pollution$site_id, mean = pollution$NO2_mean, max_value = pollution$NO2_max_value, max_hour = pollution$NO2_max_hour, aqi = pollution$NO2_aqi)
+NO2 <- tibble(site_id = pollution$site_id,date = pollution$date, mean = pollution$NO2_mean, max_value = pollution$NO2_max_value, max_hour = pollution$NO2_max_hour, aqi = pollution$NO2_aqi)
 
-O3 <- tibble(site_id = pollution$site_id, mean = pollution$O3_mean, max_value = pollution$O3_max_value, max_hour = pollution$O3_max_hour, aqi = pollution$O3_aqi)
+O3 <- tibble(site_id = pollution$site_id,date = pollution$date, mean = pollution$O3_mean, max_value = pollution$O3_max_value, max_hour = pollution$O3_max_hour, aqi = pollution$O3_aqi)
 
-SO2 <- tibble(site_id = pollution$site_id, mean = pollution$SO2_mean, max_value = pollution$SO2_max_value, max_hour = pollution$SO2_max_hour, aqi = pollution$SO2_aqi)
+SO2 <- tibble(site_id = pollution$site_id,date = pollution$date, mean = pollution$SO2_mean, max_value = pollution$SO2_max_value, max_hour = pollution$SO2_max_hour, aqi = pollution$SO2_aqi)
 
-CO <- tibble(site_id = pollution$site_id, mean = pollution$CO_mean, max_value = pollution$CO_max_value, max_hour = pollution$CO_max_hour, aqi = pollution$CO_aqi)
+CO <- tibble(site_id = pollution$site_id,date = pollution$date, mean = pollution$CO_mean, max_value = pollution$CO_max_value, max_hour = pollution$CO_max_hour, aqi = pollution$CO_aqi)
 ```
 
-# Visualization
+# **Visualization**
+## Distribution of AQI
+Visualize the distribution of Air Quality Index in all four of the pollutants and observe their range.
+### AQI in Nitrogen Oxides
+We can visualize the air quality within nitrogen oxide by seeing how skewed the graph is. Most of the data is concentrated to the left, below 50. According to the Environmental Protection Agency (EPA), air quality with values 0 to 50 are considered good conditions. The higher the value, the higher the pollution in the air.
+```{r}
+ggplot(data=NO2,aes(aqi)) + geom_density(kernel = "gaussian", color="blue") + labs(title="Distribution of Air Quality in Nitrogen Oxides",x="Air Quality Index",y="Density")
+```
+
+### AQI in Ozone
+The distribution of AQI for Ozone is similarly skewed with majority of the data falling at 50 or below. We can observe that at most locations the AQI for Ozone is around 25. According to the EPA an AQI of 0 to 50 in ozone are good air conditions.
+```{r}
+ggplot(data=O3,aes(aqi)) + geom_density(kernel = "gaussian", color="blue") + labs(title="Distribution of Air Quality in the Ozone",x="Air Quality Index",y="Density")
+```
+
+### AQI in Sulfur Dioxides
+The distribution of AQI in sulfur dioxides is low in majority of the data locations, majority of the data falls well below 25. According to the EPA an AQI of 0 to 50 in sulfur dioxides is considered good air quality.
+```{r}
+ggplot(data=SO2,aes(aqi)) + geom_density(kernel = "gaussian", color="blue") + labs(title="Distribution of Air Quality in the Ozone",x="Air Quality Index",y="Density")
+```
+
+### AQI in Carbon Dioxides
+The distribution of air quality of Ozone here is skewed as well, majority of the data falls below 25. According to the EPA, AQI of Ozone between 0 and 50 have no health impacts and is considered good air quality.
+```{r}
+ggplot(data=CO,aes(aqi)) + geom_density(kernel = "gaussian", color="blue") + labs(title="Distribution of Air Quality in the Ozone",x="Air Quality Index",y="Density")
+```
+

@@ -13,7 +13,7 @@ Researching data on air pollution is motivated by the current climate crisis. Wo
 The current dataset included are annual emission rates recorded in hourly increments of toxic air pollutant chemicals like carbon dioxide, sulfur dioxide, ozone, and nitrogen oxides at the ground level.
 
 <span style="color:red">Side Note:</span>
-The necessary dataset used in the project is too large to include and therefore will need to be downloaded locally before hand. In this project, the dataset will be referred to as "uspollution.csv"
+The necessary dataset used in the project is too large to include and therefore will need to be downloaded locally before hand. The original dataset is available for download here:https://www.kaggle.com/sogun3/uspollution. In this project, the dataset will be referred to as "uspollution.csv"
 
 ## Load Libraries
 The following libraries are needed for cleaning and visualizing data in this first phase.

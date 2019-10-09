@@ -10,7 +10,7 @@ output:
 Researching data on air pollution is motivated by the current climate crisis. Worldwide, there are climate strikes happening due to the lack of care society has given to our planet. 
 
 # **Data**
-The current dataset included are annual emission rates recorded in hourly increments of toxic air pollutant chemicals like carbon dioxide, sulfur dioxide, ozone, and nitrogen oxides at the ground level.
+The current dataset included are annual emission rates recorded in 8-hour increments of toxic air pollutant chemicals like carbon dioxide, sulfur dioxide, ozone, and nitrogen oxides at the ground level.
 
 <span style="color:red">Side Note:</span>
 The necessary dataset used in the project is too large to include and therefore will need to be downloaded locally before hand. The original dataset is available for download here:https://www.kaggle.com/sogun3/uspollution. In this project, the dataset will be referred to as "uspollution.csv"
@@ -118,6 +118,7 @@ CO <- tibble(site_id = pollution$site_id,date = pollution$date, mean = pollution
 ```
 
 # **Visualization**
+
 ## Distribution of AQI
 Visualize the distribution of Air Quality Index in all four of the pollutants and observe their range.
 ### AQI in Nitrogen Oxides
@@ -135,12 +136,32 @@ ggplot(data=O3,aes(aqi)) + geom_density(kernel = "gaussian", color="blue") + lab
 ### AQI in Sulfur Dioxides
 The distribution of AQI in sulfur dioxides is low in majority of the data locations, majority of the data falls well below 25. According to the EPA an AQI of 0 to 50 in sulfur dioxides is considered good air quality.
 ```{r}
-ggplot(data=SO2,aes(aqi)) + geom_density(kernel = "gaussian", color="blue") + labs(title="Distribution of Air Quality in the Ozone",x="Air Quality Index",y="Density")
+ggplot(data=SO2,aes(aqi)) + geom_density(kernel = "gaussian", color="blue") + labs(title="Distribution of Air Quality in Sulfur Dioxides",x="Air Quality Index",y="Density")
 ```
 
 ### AQI in Carbon Dioxides
 The distribution of air quality of Ozone here is skewed as well, majority of the data falls below 25. According to the EPA, AQI of Ozone between 0 and 50 have no health impacts and is considered good air quality.
 ```{r}
-ggplot(data=CO,aes(aqi)) + geom_density(kernel = "gaussian", color="blue") + labs(title="Distribution of Air Quality in the Ozone",x="Air Quality Index",y="Density")
+ggplot(data=CO,aes(aqi)) + geom_density(kernel = "gaussian", color="blue") + labs(title="Distribution of Air Quality in Carbon Dioxide",x="Air Quality Index",y="Density")
+```
+
+## Distribution of Means
+Visualizes the distribution of means among the four different pollutants. This graphically represents the average emission rate of each pollutant in the United States recorded daily in 8-hour intervals. All four graphs are heavily skewed with most data concentrated to the left.
+### Means of Nitrogen Oxides
+```{r}
+ggplot(data=NO2,aes(mean)) + geom_density(kernel = "gaussian", color="red") + labs(title="Distribution of Mean in Nitrogen Oxides",x="Mean",y="Density")
+```
+
+### Means of Ozone
+```{r}
+ggplot(data=O3,aes(mean)) + geom_density(kernel = "gaussian", color="red") + labs(title="Distribution of Mean in Ozone",x="Mean",y="Density")
+```
+
+```{r}
+ggplot(data=SO2,aes(mean)) + geom_density(kernel = "gaussian", color="red") + labs(title="Distribution of Mean in Sulfur Oxides",x="Mean",y="Density")
+```
+
+```{r}
+ggplot(data=CO,aes(mean)) + geom_density(kernel = "gaussian", color="red") + labs(title="Distribution of Mean in Carbon Dioxides",x="Mean",y="Density")
 ```
 

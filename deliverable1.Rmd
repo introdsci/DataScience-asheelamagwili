@@ -165,3 +165,14 @@ ggplot(data=SO2,aes(mean)) + geom_density(kernel = "gaussian", color="red") + la
 ggplot(data=CO,aes(mean)) + geom_density(kernel = "gaussian", color="red") + labs(title="Distribution of Mean in Carbon Dioxides",x="Mean",y="Density")
 ```
 
+# Research Questions
+In the further phases of this project I hope to explore the following topics with more details
+
+### Air Pollution's Affects on Environmental Ecosystems
+I would like to explore how the behavior of air pollution over the years affect the environmental ecosystems like the rainforest, desert, oceans, etc.
+
+### Air Pollution on Wildlife
+Seeing if air pollution has correlation on wildlife behaviors.
+
+### Air Pollution Patterns
+How air pollution's behaviors change over time, as well as identify any patterns if the exist. This would further help answer the causes and solutions to air pollution.

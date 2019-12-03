@@ -1,0 +1,122 @@
+---
+title: "Model Planning & Building"
+output:
+  html_document:
+    df_print: paged
+---
+
+This builds upon the first part, from [`deliverable1.Rmd`](deliverable1.html)
+```{r echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, results='hide'}
+include <- function(library_name){
+  if( !(library_name %in% installed.packages()) )
+    install.packages(library_name) 
+  library(library_name, character.only=TRUE)
+}
+include("rvest")
+include("tidyr")
+include("tidyverse")
+include("ggplot2")
+include("modelr")
+include("knitr")
+purl("deliverable1.Rmd", output = "deliverable1.r") # produces r source from rmd
+
+# Since the first deliverable requires user to download a file (See note below) this part will be commented out - once file is downloaded this line should be uncommented.
+#source("deliverable1.r") # executes the source
+```
+**NOTE**: This deliverable file is modular however the file "uspollution.csv" will need to be downloaded on your local computer before running. This file is too large to be included within the project's repository.
+
+# **Predictions**
+## Behavior of Greenhouse Gases
+Using the collected data on air quality predict the behavior of greenhouse gases and their source. This prediction is important because greenhouse gasses are one of the main drivers of observed climate change.
+
+# **Supplemental Data**
+## Load Data from Database
+We are using a dataset on U.S. greenhouse gas emissions by inventory sector recorded from 1990 to 2017. The five sectors are Energy, Agriculture, Industrial Processes, Waste and Land-use/Change/Forestry. This data is loaded in and exported as a CSV file using the EPA's Database. The data can be explored and downloaded at the [`EPA Database`](https://cfpub.epa.gov/ghgdata/inventoryexplorer/#iallsectors/allgas/inventsect/all)
+
+**NOTE**: The supplemental dataset I used is predownloaded and saved within this project for easier access since multiple datasets can be generated through the database, the dataset provided ("InventorySector.csv") is specific to this project.
+```{r}
+inventory_sector <- read_csv("InventorySector.csv")
+# Priview of dataset
+head(inventory_sector)
+```
+
+## Tidy Up
+Let's clean up the dataset by making each sector it's own column and adding the years as an attribute.
+
+**TRANSPOSE**
+
+
+Let's tranpose the table which will group the values by sector instead of by year. The year will become the row names instead.
+```{r}
+# Create a new dataframe called Sector and transpose the original
+Sector <- as.data.frame(t(inventory_sector))
+Sector
+```
+
+**ATTRIBUTE NAMES**
+
+
+Let's clean up the attribute names and remove the first row from the table since it just contains the old column names as values.
+```{r}
+# Clean up the sector names
+colnames(Sector)[colnames(Sector) == "V1"] <- "Energy"
+colnames(Sector)[colnames(Sector) == "V2"] <- "Agriculture"
+colnames(Sector)[colnames(Sector) == "V3"] <- "Industrial"
+colnames(Sector)[colnames(Sector) == "V4"] <- "Waste"
+colnames(Sector)[colnames(Sector) == "V5"] <- "Forestry"
+colnames(Sector)[colnames(Sector) == "V6"] <- "Gross"
+colnames(Sector)[colnames(Sector) == "V7"] <- "Net"
+
+# Remove first row
+Sector <- Sector[-1,]
+Sector
+```
+
+## Year
+Create a "year" attribute in the Sector table so that it is easier for us to visualize the data later on.
+```{r}
+year <- rownames(Sector)
+Sector$Year <- year
+Sector
+```
+
+# **Data Models**
+## Prepare Data
+Prepare the data in order for us to create a simple model. We will gather the data needed in order to graph each sector's emissions grouped by sector.
+```{r}
+emissions_by_sector <- gather(Sector,Sector,Emissions,"Energy":"Forestry")
+# We won't need the Net or Gross, let's remove them
+emissions_by_sector$Net = NULL
+emissions_by_sector$Gross = NULL
+
+# Change the type of Emissions from character to a numeric
+emissions_by_sector$Emissions <- as.numeric(emissions_by_sector$Emissions)
+
+emissions_by_sector
+```
+
+
+
+## Simple Model
+Let's model the emissions of carbon dioxide produced by each sector measured in million metric tons annually.
+```{r}
+# Create Linear Model
+emissions_model <- ggplot(emissions_by_sector, aes(x=Year,y=Emissions)) + geom_line(aes(group = Sector, color = Sector))
+
+# Fix the x-axis so it is readable
+emissions_model <- emissions_model + theme(axis.text.x = element_text(angle=45), plot.title = element_text(size = 20, face = "bold"))
+
+# Add more detail to the labels
+emissions_model <- emissions_model + labs(title = "Emissions by Inventory Sector", subtitle = "Measured in Million Metric Tons over Time (1990-2017)")
+
+emissions_model
+```
+
+## Results
+The results of our model show that the Energy sector emits the most air pollutants between 1990 and 2017. With waste being the lowest source of air pollutants at a steady decreasing rate.
+
+# **Parameters**
+The parameters in our model is the emissions of each sector over time. This accurately shows us which sectors emit the most air pollutants.
+
+## Limitations
+Some possible limitations of the supplemental data is that there may be more sectors that can be added to this. The sectors are vague and broad, having more detailed categories as we progress can assist us in a more detailed study of which sectors produce the most air pollutants. This also still reports on air pollutants produced in the United States, data on air pollutants produced by other countries would be helpful as well.

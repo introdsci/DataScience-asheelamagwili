@@ -1,0 +1,27 @@
+NOTES ON DELIVERABLES:
+
+1. Format of GitHub Pages:
+- index.html should just have a link to deliverable1.html, deliverable2.html, and deliverable 3.html.
+
+2. Visualization:
+- Make charts or graphs more readable
+- Labels should be clean and tidy
+- Print labels in plain English (Not just variable names)
+- Make graphs look nice
+
+3. Modeling:
+- Don't obssess about models being perfect
+- Mention results even if the result is "Variables are not good at predicting"
+- These problems will need to be addressed in Deliverable 3 (Refining)
+- Keep initial model ~initial~
+
+4. Display Data:
+- List your tibble: "my_tibble"
+- This will display your new dataset and knit it to HTML
+- Easier for viewers to see what data looks like in a more raw form
+
+5. Making Deliverables Modular:
+- "Purl source" chunk of Kevin's MusicInsights - ref page
+- Will run the first deliverable for the viewer without them having to manually run it
+- Essentially, they can just go to each deliverable separately without running anything but that one.
+    

@@ -14,11 +14,14 @@ I am interested in looking into air pollution and the behavior of air pollutants
 
 In the first deliverable, the data is introduced, cleaned, and processed. This phase focuses on understanding the data and making it readable for others to understand as well.
 
-Link to first deliverable: https://introdsci.github.io/DataScience-asheelamagwili/deliverable1
+
+Access the first deliverable here: [`DELIVERABLE 1`](https://introdsci.github.io/DataScience-asheelamagwili/deliverable1)
 
 ### 2. Model Planning and Building
 
-Coming soon...
+In the second deliverable, supplemental data is introduced that focuses on different inventory sectors. These sectors includes Energy, Agriculture, Industrial, Waste, and Forestry. A model of this data can be used to predict the behavior of greenhouse gasses.
+
+Access the second deliverable here: [`DELIVERABLE 2`](https://introdsci.github.io/DataScience-asheelamagwili/deliverable2)
 
 ### 3. Results and Operationalization
 

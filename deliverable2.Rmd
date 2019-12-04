@@ -113,7 +113,6 @@ R2(predictions, as.numeric(test$Energy))
 MAE(predictions, as.numeric(test$Energy))
 ```
 
-
 # **Data Models**
 ## Prepare Data
 Prepare the data in order for us to create a simple model. We will gather the data needed in order to graph each sector's emissions grouped by sector.
@@ -159,6 +158,7 @@ cor.test(Sector$Energy,Sector$Agriculture)
 cor.test(Sector$Energy,Sector$Waste)
 cor.test(Sector$Energy,Sector$Forestry)
 ```
+
 ## Visualize the Data
 Here we visualize the correlation between Energy and Forestry. I chose Forestry because it seems to have the lowest p-value **(0.02155885)** thus might be the most helpful predicter for our model. Although this has the lowest p-value, the correlation is still not very strong.
 ```{r}
@@ -170,6 +170,7 @@ forestry_vs_energy <- forestry_vs_energy + labs(title = "Forestry vs. Energy") +
 
 forestry_vs_energy
 ```
+
 # Simple Model
 In these results we should pay attention to the **coefficient**. The **coefficient** is the multiplier for our independent variable. The slope is the "Estimate". We should also pay attention the **R-squared** value.
 ```{r}

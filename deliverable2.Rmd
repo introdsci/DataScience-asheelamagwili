@@ -18,16 +18,13 @@ include("tidyverse")
 include("ggplot2")
 include("modelr")
 include("knitr")
+library(caret)
 purl("deliverable1.Rmd", output = "deliverable1.r") # produces r source from rmd
 
 # Since the first deliverable requires user to download a file (See note below) this part will be commented out - once file is downloaded this line should be uncommented.
 #source("deliverable1.r") # executes the source
 ```
 **NOTE**: This deliverable file is modular however the file "uspollution.csv" will need to be downloaded on your local computer before running. This file is too large to be included within the project's repository.
-
-# **Predictions**
-## Behavior of Greenhouse Gases
-Using the collected data on air quality predict the behavior of greenhouse gases and their source. This prediction is important because greenhouse gasses are one of the main drivers of observed climate change.
 
 # **Supplemental Data**
 ## Load Data from Database
@@ -77,8 +74,45 @@ Create a "year" attribute in the Sector table so that it is easier for us to vis
 ```{r}
 year <- rownames(Sector)
 Sector$Year <- year
+
 Sector
 ```
+
+# **Predictions**
+## Behavior of Greenhouse Gases
+Using the collected data on air quality predict the behavior of greenhouse gases and their source. This prediction is important because greenhouse gasses are one of the main drivers of observed climate change. I would like to predict that as Sectors like Energy, Industrial and Waste emit more and more air pollutants Sectors like Agriculture and Forestry decrease.
+
+Simply saying that as more pollutants are released into the air, the more air pollutants are absorbed by forests/land use.
+
+## Drop NA Values
+```{r}
+new_sector <- as_tibble(Sector) %>% subset(!is.na(as.numeric(Energy)) & !is.na(as.numeric(Forestry)))
+set.seed(385)
+```
+
+## Create Training & Test Sets
+```{r}
+sample_selection <- createDataPartition(as.numeric(Sector$Energy), p = 0.70, list = FALSE)
+train <- new_sector[sample_selection,]
+test <- new_sector[-sample_selection,]
+```
+
+## Build Model
+```{r}
+train_model <- lm(Sector,formula = as.numeric(Energy) ~ as.numeric(Forestry) + as.numeric(Waste) + as.numeric(Agriculture) + as.numeric(Industrial))
+```
+
+## Predictions
+```{r}
+predictions <- train_model %>% predict(test)
+
+# The square of correlation - (0 - no correlation & 1 - directly correlated)
+R2(predictions, as.numeric(test$Energy))
+
+# Average errors of all our predictions
+MAE(predictions, as.numeric(test$Energy))
+```
+
 
 # **Data Models**
 ## Prepare Data
@@ -95,12 +129,8 @@ emissions_by_sector$Emissions <- as.numeric(emissions_by_sector$Emissions)
 emissions_by_sector
 ```
 
-
-
-## Simple Model
-Let's model the emissions of carbon dioxide produced by each sector measured in million metric tons annually.
+## Our Data
 ```{r}
-# Create Linear Model
 emissions_model <- ggplot(emissions_by_sector, aes(x=Year,y=Emissions)) + geom_line(aes(group = Sector, color = Sector))
 
 # Fix the x-axis so it is readable
@@ -112,11 +142,46 @@ emissions_model <- emissions_model + labs(title = "Emissions by Inventory Sector
 emissions_model
 ```
 
+## Correlation Testing
+How much two variables are related, possible outcomes can be positive, negative, or no correlation at all. Here we will focus on the **p-value**. The **p-value** describes the probability of coming about this relationship by chance.This questions if this correlation is even significant. The lower the p-value, the more likely we are observing a genuine relationship.
+
+```{r}
+# Changes the types to a numeric
+Sector$Energy <- as.numeric(Sector$Energy)
+Sector$Agriculture <- as.numeric(Sector$Agriculture)
+Sector$Industrial <- as.numeric(Sector$Industrial)
+Sector$Waste <- as.numeric(Sector$Waste)
+Sector$Forestry <- as.numeric(Sector$Forestry)
+
+# Tests the correlation between Energy
+cor.test(Sector$Energy,Sector$Industrial)
+cor.test(Sector$Energy,Sector$Agriculture)
+cor.test(Sector$Energy,Sector$Waste)
+cor.test(Sector$Energy,Sector$Forestry)
+```
+## Visualize the Data
+Here we visualize the correlation between Energy and Forestry. I chose Forestry because it seems to have the lowest p-value **(0.02155885)** thus might be the most helpful predicter for our model. Although this has the lowest p-value, the correlation is still not very strong.
+```{r}
+# Create a scatter plot
+forestry_vs_energy <- ggplot(Sector,aes(x=as.numeric(Sector$Forestry),y=as.numeric(Sector$Energy))) + geom_point() 
+
+# Beautify the graph
+forestry_vs_energy <- forestry_vs_energy + labs(title = "Forestry vs. Energy") + xlab("Forestry") + ylab("Energy") + theme(plot.title = element_text(size = 20, face = "bold"))
+
+forestry_vs_energy
+```
+# Simple Model
+In these results we should pay attention to the **coefficient**. The **coefficient** is the multiplier for our independent variable. The slope is the "Estimate". We should also pay attention the **R-squared** value.
+```{r}
+simple_model <- lm(Sector,formula=Energy~Forestry + Waste + Agriculture + Industrial)
+summary(simple_model)
+```
+
 ## Results
-The results of our model show that the Energy sector emits the most air pollutants between 1990 and 2017. With waste being the lowest source of air pollutants at a steady decreasing rate.
+Our low p-value indicates that our predicters might be a meaningful addition to our model because changes in the predicter's value are related to the behavior of our response variable.
 
 # **Parameters**
-The parameters in our model is the emissions of each sector over time. This accurately shows us which sectors emit the most air pollutants.
+The parameters in our model is the emissions of each sector over time. This accurately shows us which sectors emit the most air pollutants. 
 
 ## Limitations
-Some possible limitations of the supplemental data is that there may be more sectors that can be added to this. The sectors are vague and broad, having more detailed categories as we progress can assist us in a more detailed study of which sectors produce the most air pollutants. This also still reports on air pollutants produced in the United States, data on air pollutants produced by other countries would be helpful as well.
+Some possible limitations of the supplemental data is that there may be more sectors that can be added to this. The sectors are vague and broad, having more detailed categories as we progress can assist us in a more detailed study of which sectors produce the most air pollutants. This also still reports on air pollutants produced in the United States, data on air pollutants produced by other countries would be helpful as well. I also realize that my predictions in the beginning may be too broad and should be narrowed down to be more effective.

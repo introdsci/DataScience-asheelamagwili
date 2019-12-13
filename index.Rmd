@@ -25,5 +25,7 @@ Access the second deliverable here: [`DELIVERABLE 2`](https://introdsci.github.i
 
 ### 3. Results and Operationalization
 
-Coming soon...
+In the final deliverable, we conclude the study with our findings and operationalize how this study may impact society. Although, the study wasn't a good fit for the model chosen the overall idea and social implications of this type of study is still important to note.
+
+Access the third deliverable here: [`DELIVERABLE 3`](https://introdsci.github.io/DataScience-asheelamagwili/deliverable3)
 

@@ -1,0 +1,267 @@
+---
+title: "Results & Operationalization"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, results='hide'}
+# Make the deliverable modular
+include <- function(library_name){
+  if( !(library_name %in% installed.packages()) )
+    install.packages(library_name) 
+  library(library_name, character.only=TRUE)
+}
+include("rvest")
+include("tidyr")
+include("tidyverse")
+include("ggplot2")
+include("modelr")
+include("knitr")
+library(caret)
+library(usmap)
+purl("deliverable1.Rmd", output = "deliverable1.r") # produces r source from rmd
+purl("deliverable2.Rmd", output = "deliverable2.r") # produces r source from rmd
+
+# Since the first deliverable requires user to download a file (See note below) this part will be commented out - once file is downloaded this line should be uncommented.
+source("deliverable1.r") # executes the source
+source("deliverable2.r") # executes the source
+```
+
+# **Revisions**
+
+## Deliverable 1
+A documentation of revisions made to Deliverable 1 during the [`Discovery & Data Preparation`](https://introdsci.github.io/DataScience-asheelamagwili/deliverable1) phase.
+
+### Markdown Formatting
+Some markdown formatting and beautification changes made to make the document more readable by utilizing markdown functions.
+
+1. When *Loading Libraries* an **include()** function was added, this installs any packages necessary for libraries that are used in the file.
+2. The *Loading Libraries* code chunk is also suppressed so that when ran, the output of installing packages doesn't actually print to the user. This is data that is not significant to the project.
+3. Data tables also now show a preview of the data using **head()**. Whenever a change is made the first few rows of the data is displayed to show changes.
+4. Comments in the R code chunks are added to make more sense of what is happening code-wise, this makes it easier for the user to follow along when reading the code.
+
+## Deliverable 2
+A documentation of revisions made to Deliverable 2 during the [`Model Planning & Building`](https://introdsci.github.io/DataScience-asheelamagwili/deliverable2) phase.
+
+### Interpretations
+Some additional changes to how data is interpreted to help the reader better understand our goals and data.
+
+1. Added a *Conclusion* section to finalize the results of my prediction.
+
+### Data
+
+1. An *About the Data* section was added to introduce what the contents of the data.
+2. Adding more in-depth dataset that focuses on Forestry and Energy could make our models better. This new supplemental data was found on the same database described in the [`Model Planning & Building`](https://introdsci.github.io/DataScience-asheelamagwili/deliverable2) phase.
+
+```{r}
+# Load in the new data found on Forestry and Energy
+energy <- read_csv("energy.csv")
+head(energy)
+
+forestry <- read_csv("forestry.csv")
+head(forestry)
+```
+
+## Clean-up New Data
+
+### Transpose
+First things in cleaning the data, we should transpose the tables so that the **Land Use Sector** & **Energy Sector** become the column names instead of the row names.
+```{r}
+# Transpose the new data
+Energy <- as.data.frame(t(energy))
+Energy
+
+Forestry <- as.data.frame(t(forestry))
+Forestry
+```
+
+### Attribute Names
+Rename that attribute names so that it is consistent to the previous labels, we are also making sure that the datatypes of each attribute is a double. Let's remove the first row which contains the column names as well.
+```{r}
+# Rename the Forestry attribute names
+colnames(Forestry)[colnames(Forestry) == "V1"] <- "land_to_settlements"
+colnames(Forestry)[colnames(Forestry) == "V2"] <- "land_to_cropland"
+colnames(Forestry)[colnames(Forestry) == "V3"] <- "land_to_grassland"
+colnames(Forestry)[colnames(Forestry) == "V4"] <- "grassland"
+colnames(Forestry)[colnames(Forestry) == "V5"] <- "land_to_wetlands"
+colnames(Forestry)[colnames(Forestry) == "V6"] <- "wetlands"
+colnames(Forestry)[colnames(Forestry) == "V7"] <- "cropland"
+colnames(Forestry)[colnames(Forestry) == "V8"] <- "land_to_forest"
+colnames(Forestry)[colnames(Forestry) == "V9"] <- "settlements"
+colnames(Forestry)[colnames(Forestry) == "V10"] <- "forestlands"
+colnames(Forestry)[colnames(Forestry) == "V11"] <- "forestry_total"
+
+# Create an attribute of the years
+year <- rownames(Forestry)
+Forestry$year <- year
+
+# Remove the first row - it is redundant to the column names
+Forestry <- Forestry[-1,]
+
+# Remove the rownames
+row.names(Forestry) <- NULL
+
+# Change the datatype from factor to doubles
+Forestry$land_to_settlements <- as.numeric(levels(Forestry$land_to_settlements))[Forestry$land_to_settlements]
+Forestry$land_to_cropland <- as.numeric(levels(Forestry$land_to_cropland))[Forestry$land_to_cropland]
+Forestry$land_to_grassland <- as.numeric(levels(Forestry$land_to_grassland))[Forestry$land_to_grassland]
+Forestry$grassland <- as.numeric(levels(Forestry$grassland))[Forestry$grassland]
+Forestry$land_to_wetlands <- as.numeric(levels(Forestry$land_to_wetlands))[Forestry$land_to_wetlands]
+Forestry$wetlands <- as.numeric(levels(Forestry$wetlands))[Forestry$wetlands]
+Forestry$cropland <- as.numeric(levels(Forestry$cropland))[Forestry$cropland]
+Forestry$land_to_forest <- as.numeric(levels(Forestry$land_to_forest))[Forestry$land_to_forest]
+Forestry$settlements <- as.numeric(levels(Forestry$settlements))[Forestry$settlements]
+Forestry$forestlands <- as.numeric(levels(Forestry$forestlands))[Forestry$forestlands]
+Forestry$forestry_total <- as.numeric(levels(Forestry$forestry_total))[Forestry$forestry_total]
+Forestry
+```
+
+
+```{r}
+# Rename the Energy attribute names
+colnames(Energy)[colnames(Energy) == "V1"] <- "fossil_fuel_combustion"
+colnames(Energy)[colnames(Energy) == "V2"] <- "natural_gas_petroleum"
+colnames(Energy)[colnames(Energy) == "V3"] <- "non-energy"
+colnames(Energy)[colnames(Energy) == "V4"] <- "coal_mining"
+colnames(Energy)[colnames(Energy) == "V5"] <- "stationary_combustion"
+colnames(Energy)[colnames(Energy) == "V6"] <- "mobile_combustion"
+colnames(Energy)[colnames(Energy) == "V7"] <- "incineration_of_waste"
+colnames(Energy)[colnames(Energy) == "V8"] <- "energy_total"
+
+# Create an attribute of the years
+year <- rownames(Energy)
+Energy$year <- year
+
+# Remove the first row - it is redundant to the column names
+Energy <- Energy[-1,]
+
+# Remove the rownames
+row.names(Energy) <- NULL
+
+# Change the datatype from factor to doubles
+Energy$fossil_fuel_combustion <- as.numeric(levels(Energy$fossil_fuel_combustion))[Energy$fossil_fuel_combustion]
+Energy$natural_gas_petroleum <- as.numeric(levels(Energy$natural_gas_petroleum))[Energy$natural_gas_petroleum]
+Energy$`non-energy` <- as.numeric(levels(Energy$`non-energy`))[Energy$`non-energy`]
+Energy$coal_mining <- as.numeric(levels(Energy$coal_mining))[Energy$coal_mining]
+Energy$stationary_combustion <- as.numeric(levels(Energy$stationary_combustion))[Energy$stationary_combustion]
+Energy$mobile_combustion <- as.numeric(levels(Energy$mobile_combustion))[Energy$mobile_combustion]
+Energy$incineration_of_waste <- as.numeric(levels(Energy$incineration_of_waste))[Energy$incineration_of_waste]
+Energy$energy_total <- as.numeric(levels(Energy$energy_total))[Energy$energy_total]
+Energy
+```
+
+## Cross-validation
+## Create New Table
+Let's create a new table of the attributes we will use to predict this.
+```{r}
+# Combine the two tables Forestry & Energy together
+Energy_and_Forestry <- merge(Energy,Forestry,by="year")
+Energy_and_Forestry
+```
+
+
+
+## Drop NA Values
+Remove the NA values within the two attributes that we're using to make our predictions.
+```{r}
+all_sectors <- as_tibble(Energy_and_Forestry) %>% subset(!is.na(forestlands) & !is.na(energy_total))
+set.seed(385)
+```
+
+## Create Training & Test Sets
+```{r}
+sample_selection <- createDataPartition(Energy_and_Forestry$energy_total, p = 0.70, list = FALSE)
+
+# Create training set
+train <- all_sectors[sample_selection,]
+
+# Create the test set
+test <- all_sectors[-sample_selection,]
+test
+```
+
+## Build Model
+```{r}
+train_model <- lm(Energy_and_Forestry,formula = energy_total ~.)
+```
+
+## Predictions
+```{r}
+predictions <- train_model %>% predict(test)
+
+# The square of correlation - (0 - no correlation & 1 - directly correlated)
+R2(predictions, as.numeric(test$energy_total))
+
+# Average errors of all our predictions
+MAE(predictions, as.numeric(test$energy_total))
+```
+
+# Visualization
+```{r}
+# Create a scatter plot
+forestry_vs_energy <- ggplot(Energy_and_Forestry,aes(x=forestlands,y=energy_total)) + geom_point()
+
+# Beautify the graph
+forestry_vs_energy <- forestry_vs_energy + labs(title = "Forestry vs. Energy") + xlab("Forestry") + ylab("Energy") + theme(plot.title = element_text(size = 20, face = "bold"))
+
+forestry_vs_energy
+```
+
+## Interpretation
+According to our graph, you could say that there is some correlation between the total energy emissions and forest lands. As the amount of carbon dioxide that the Energy sectors release the more forest lands do as well. However, these correlations are not very strong therefore we shouldn't count on it. As it turns out, plants release about half of the Carbon Gasses that they absorb. In theory, emissions of the Energy Sector and Forestlands would increase simultaneously.
+
+# **Social Implications**
+Does the increase of carbon emissions by Industry Sectors like Energy lead to less forestlands?
+
+## Measurement
+This could be measured by the amount of forestlands recorded in the United States.
+
+## Factors
+There are multiple factors that could contribute to this implication.
+
+1. Natural Disasters recorded that year - possibly destroying forestlands.
+2. Population size within the area - if there is a large population of people living in one area it is more likely that there is less forestlands there and vice versa.
+3. Laws that protect forestlands could mean there is more in specific areas.
+
+## Operationalization & Interventions
+In this research there are a few protocols and interventions that could be implemented during the operationalization phase.
+
+1. Public policy to protect and nurture forestlands as well as regulating big companies.
+2. Education on saving energy like walking, public transportation, or any other non-gas emitting forms of transportation.
+3. Innovation on sustainable energies.
+4. Form organizations that advocate for more forestlands like [`Ecosia`](https://www.ecosia.org/)
+5. Creating campaigns to make saving energy more desirable to the general public.
+
+## Ethical Issues
+
+1. Although regulating large companies is *probably* more beneficial for the greater good, it is questionable to tell companies how to operate.
+2. There could be some problems with enforcing walking to destinations on some people because not everyone is able to or have access.
+3. Campaigns that make saving energy and forestlands more desirable may sound like a positive thing, however imposing and forcing your beliefs on others is generally looked down on.
+
+# **Project Summary**
+
+## [`Discovery Data & Preparation`](https://introdsci.github.io/DataScience-asheelamagwili/deliverable1)
+In this first phase, we discover data on topics that surround air quality and air pollution within the United States. I chose to use a dataset that recorded annual emission rates recorded in 8-hour increments of toxic air pollutant chemicals like carbon dioxide, sulfur dioxide, ozone, and nitrogen oxides at the ground level. We prepared and cleaned the data for interpretation, this involves making sure data is consistent and concise.
+
+### The Initial Data
+```{r}
+# Summarize data by state
+pollution_by_state <- aggregate(pollution$CO_max_value, by=list(state=pollution$state), FUN=sum)
+pollution_by_state
+
+# Create summary by state
+pollution_summary <- ggplot(pollution_by_state,aes(state,x)) + geom_col()
+pollution_summary <- pollution_summary + labs(title = "Carbon Emissions by State") + theme(axis.text.x = element_text(angle=90), plot.title = element_text(size = 20, face = "bold")) + xlab("Emissions") + ylab("State")
+pollution_summary
+```
+
+## [`Model Planning & Building`](https://introdsci.github.io/DataScience-asheelamagwili/deliverable2)
+In this second phase, determine methods, techniques, and workflow for the building phase. We explore the relationship of emissions between *Energy Sector* and *Forest Lands*.
+
+## [`Results & Operationalization`](https://introdsci.github.io/DataScience-asheelamagwili/deliverable3)
+In this third phase, we operationalize the project. We do this by define the measurements and finalize the reports to implement the models. We see how the study could affect society.
+
+### Errors
+In this study it is also clear that there could have been changes made to how the work flow was implemented. To fit the data better it may be would have been better to predict how Forestry Sectors affects the carbon emissions of Energy Sectors. Overall, this was not a very good model to predict with the given data sets or vice versa.

@@ -1821,10 +1821,7 @@ Energy$fossil_fuel_combustion &lt;- as.numeric(levels(Energy$fossil_fuel_combust
 </div>
 <div id="cross-validation" class="section level2">
 <h2>Cross-validation</h2>
-</div>
-<div id="create-new-table" class="section level2">
-<h2>Create New Table</h2>
-<p>Let’s create a new table of the attributes we will use to predict this.</p>
+<p>Let’s use crossvalidation to assess the predictive performance of total energy emissions and judge how they will perform outside of the sample. ## Create New Table Let’s create a new table of the attributes we will use to predict this.</p>
 <pre class="r"><code># Combine the two tables Forestry &amp; Energy together
 Energy_and_Forestry &lt;- merge(Energy,Forestry,by=&quot;year&quot;)
 Energy_and_Forestry</code></pre>
@@ -1858,19 +1855,68 @@ test</code></pre>
 </div>
 <div id="build-model" class="section level2">
 <h2>Build Model</h2>
-<pre class="r"><code>train_model &lt;- lm(Energy_and_Forestry,formula = energy_total ~.)</code></pre>
+<pre class="r"><code># After revisions I actually realized that this line of code was incorrect.
+# train_model &lt;- lm(Energy_and_Forestry,formula = energy_total ~.)
+train_model &lt;- lm(Energy_and_Forestry,formula = energy_total ~ land_to_settlements + land_to_cropland + land_to_grassland + land_to_wetlands + land_to_forest)
+summary(train_model)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = energy_total ~ land_to_settlements + land_to_cropland + 
+##     land_to_grassland + land_to_wetlands + land_to_forest, data = Energy_and_Forestry)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -286.550  -33.342   -0.691   55.274  179.571 
+## 
+## Coefficients:
+##                       Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)         123395.871  23934.866   5.155 3.62e-05 ***
+## land_to_settlements     79.891     12.730   6.276 2.57e-06 ***
+## land_to_cropland         5.203     14.657   0.355    0.726    
+## land_to_grassland       -8.083     29.572  -0.273    0.787    
+## land_to_wetlands     -2363.698   3678.388  -0.643    0.527    
+## land_to_forest        1037.577    205.587   5.047 4.70e-05 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 101.3 on 22 degrees of freedom
+## Multiple R-squared:  0.9169, Adjusted R-squared:  0.898 
+## F-statistic: 48.52 on 5 and 22 DF,  p-value: 3.756e-11</code></pre>
+<p>The highest p-values belong to land_to_cropland &amp; land_to_grassland which are both over 0.5 which is generally what my cutoff would be so we will remove those.</p>
+<pre class="r"><code>train_model &lt;- lm(Energy_and_Forestry,formula = energy_total ~ land_to_settlements + land_to_wetlands + land_to_forest)
+summary(train_model)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = energy_total ~ land_to_settlements + land_to_wetlands + 
+##     land_to_forest, data = Energy_and_Forestry)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -297.789  -37.910    3.083   56.121  172.028 
+## 
+## Coefficients:
+##                       Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)         129466.990   9461.780  13.683 7.89e-13 ***
+## land_to_settlements     80.994      5.163  15.688 4.07e-14 ***
+## land_to_wetlands     -2502.836   3505.684  -0.714    0.482    
+## land_to_forest        1086.438     82.122  13.230 1.62e-12 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 97.34 on 24 degrees of freedom
+## Multiple R-squared:  0.9163, Adjusted R-squared:  0.9058 
+## F-statistic: 87.59 on 3 and 24 DF,  p-value: 4.57e-13</code></pre>
 </div>
 <div id="predictions" class="section level2">
 <h2>Predictions</h2>
-<pre class="r"><code>predictions &lt;- train_model %&gt;% predict(test)</code></pre>
-<pre><code>## Warning in predict.lm(., test): prediction from a rank-deficient fit may be
-## misleading</code></pre>
-<pre class="r"><code># The square of correlation - (0 - no correlation &amp; 1 - directly correlated)
+<pre class="r"><code>predictions &lt;- train_model %&gt;% predict(test)
+
+# The square of correlation - (0 - no correlation &amp; 1 - directly correlated)
 R2(predictions, as.numeric(test$energy_total))</code></pre>
-<pre><code>## [1] 1</code></pre>
+<pre><code>## [1] 0.8881202</code></pre>
 <pre class="r"><code># Average errors of all our predictions
 MAE(predictions, as.numeric(test$energy_total))</code></pre>
-<pre><code>## [1] 3.979039e-12</code></pre>
+<pre><code>## [1] 84.74824</code></pre>
 </div>
 </div>
 <div id="visualization" class="section level1">
@@ -1922,6 +1968,10 @@ forestry_vs_energy</code></pre>
 <li>There could be some problems with enforcing walking to destinations on some people because not everyone is able to or have access.</li>
 <li>Campaigns that make saving energy and forestlands more desirable may sound like a positive thing, however imposing and forcing your beliefs on others is generally looked down on.</li>
 </ol>
+</div>
+<div id="conclusions" class="section level2">
+<h2>Conclusions</h2>
+<p>Studies like these could assist us in helping society understand how big industries could affect our planet and our health. Sectors like Energy and Waste go unnoticed with how much Carbon Emissions are produced. It is important to educate society on the impact of our actions.</p>
 </div>
 </div>
 <div id="project-summary" class="section level1">

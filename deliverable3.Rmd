@@ -21,8 +21,8 @@ include("modelr")
 include("knitr")
 library(caret)
 library(usmap)
-purl("deliverable1.Rmd", output = "deliverable1.r") # produces r source from rmd
-purl("deliverable2.Rmd", output = "deliverable2.r") # produces r source from rmd
+#purl("deliverable1.Rmd", output = "deliverable1.r") # produces r source from rmd
+#purl("deliverable2.Rmd", output = "deliverable2.r") # produces r source from rmd
 
 # Since the first deliverable requires user to download a file (See note below) this part will be commented out - once file is downloaded this line should be uncommented.
 source("deliverable1.r") # executes the source
@@ -153,6 +153,7 @@ Energy
 ```
 
 ## Cross-validation
+Let's use crossvalidation to assess the predictive performance of total energy emissions and judge how they will perform outside of the sample.
 ## Create New Table
 Let's create a new table of the attributes we will use to predict this.
 ```{r}
@@ -184,7 +185,16 @@ test
 
 ## Build Model
 ```{r}
-train_model <- lm(Energy_and_Forestry,formula = energy_total ~.)
+# After revisions I actually realized that this line of code was incorrect.
+# train_model <- lm(Energy_and_Forestry,formula = energy_total ~.)
+train_model <- lm(Energy_and_Forestry,formula = energy_total ~ land_to_settlements + land_to_cropland + land_to_grassland + land_to_wetlands + land_to_forest)
+summary(train_model)
+```
+
+The highest p-values belong to land_to_cropland & land_to_grassland which are both over 0.5 which is generally what my cutoff would be so we will remove those.
+```{r}
+train_model <- lm(Energy_and_Forestry,formula = energy_total ~ land_to_settlements + land_to_wetlands + land_to_forest)
+summary(train_model)
 ```
 
 ## Predictions
@@ -239,6 +249,9 @@ In this research there are a few protocols and interventions that could be imple
 1. Although regulating large companies is *probably* more beneficial for the greater good, it is questionable to tell companies how to operate.
 2. There could be some problems with enforcing walking to destinations on some people because not everyone is able to or have access.
 3. Campaigns that make saving energy and forestlands more desirable may sound like a positive thing, however imposing and forcing your beliefs on others is generally looked down on.
+
+## Conclusions
+Studies like these could assist us in helping society understand how big industries could affect our planet and our health. Sectors like Energy and Waste go unnoticed with how much Carbon Emissions are produced. It is important to educate society on the impact of our actions.
 
 # **Project Summary**
 

@@ -27,6 +27,9 @@ purl("deliverable1.Rmd", output = "deliverable1.r") # produces r source from rmd
 **NOTE**: This deliverable file is modular however the file "uspollution.csv" will need to be downloaded on your local computer before running. This file is too large to be included within the project's repository.
 
 # **Supplemental Data**
+## About the Data
+Measures of carbon dioxide equivalents emitted by inventory sectors including Energy, Agriculture, Industrial, Waste, and Forestry. These emissions are measured in million metric tons.
+
 ## Load Data from Database
 We are using a dataset on U.S. greenhouse gas emissions by inventory sector recorded from 1990 to 2017. The five sectors are Energy, Agriculture, Industrial Processes, Waste and Land-use/Change/Forestry. This data is loaded in and exported as a CSV file using the EPA's Database. The data can be explored and downloaded at the [`EPA Database`](https://cfpub.epa.gov/ghgdata/inventoryexplorer/#iallsectors/allgas/inventsect/all)
 
@@ -186,3 +189,6 @@ The parameters in our model is the emissions of each sector over time. This accu
 
 ## Limitations
 Some possible limitations of the supplemental data is that there may be more sectors that can be added to this. The sectors are vague and broad, having more detailed categories as we progress can assist us in a more detailed study of which sectors produce the most air pollutants. This also still reports on air pollutants produced in the United States, data on air pollutants produced by other countries would be helpful as well. I also realize that my predictions in the beginning may be too broad and should be narrowed down to be more effective.
+
+# Conlusion
+I can conclude that as emissions of Carbon Dioxides rise in industries like Waste, Energy, and Industrial emissions in Forestry and Agriculture actually increase as well but at a lower rate.

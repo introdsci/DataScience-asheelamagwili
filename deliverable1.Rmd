@@ -17,15 +17,23 @@ The necessary dataset used in the project is too large to include and therefore 
 
 ## Load Libraries
 The following libraries are needed for cleaning and visualizing data in this first phase.
-```{r}
-library("tidyverse")
-library("ggplot2")
+```{r echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, results='hide'}
+# include(library_name) installs necessary packages for a given library name
+include <- function(library_name){
+  if( !(library_name %in% installed.packages()) )
+    install.packages(library_name) 
+  library(library_name, character.only=TRUE)
+}
+
+include("tidyverse")
+include("ggplot2")
 ```
 
 ## Load Data
-Load in the dataset from the source and call it "pollution"
+Load in the dataset from the source and call it **pollution**
 ```{r}
 pollution <- read_csv("uspollution.csv")
+head(pollution)
 ```
 
 ## Source
@@ -52,22 +60,28 @@ Remove some unnecessary variables that we probably won't need for this study.
 
 1. Remove the pollutant units variable since it is redundant, all the values for each pollutant is the same throughout all the observations. It it more helpful to document what units each pollutant use rather than store this as an individual attribute.
 ```{r}
+# Removes the variables by setting them to NULL
 pollution$`NO2 Units` <- NULL
 pollution$`O3 Units` <- NULL
 pollution$`SO2 Units` <- NULL
 pollution$`CO Units` <- NULL
+head(pollution)
 ```
 
 2. Remove the first column since it is just a redundant row number variable, we don't need this because it is just numbering each observation.
 ```{r}
+# Removes the variables by setting them to NULL
 pollution$X1 <- NULL
+head(pollution)
 ```
 
 3. Remove the State ID, County Code, and Address. We will not need it since we will be using the Site ID as our primary key.
 ```{r}
+# Removes the variables by setting them to NULL
 pollution$`State Code` <- NULL
 pollution$`County Code` <- NULL
 pollution$Address <- NULL
+head(pollution)
 ```
 
 ## Variable Names
@@ -95,26 +109,38 @@ colnames(pollution)[colnames(pollution) == "CO Mean"] <- "CO_mean"
 colnames(pollution)[colnames(pollution) == "CO 1st Max Value"] <- "CO_max_value"
 colnames(pollution)[colnames(pollution) == "CO 1st Max Hour"] <- "CO_max_hour"
 colnames(pollution)[colnames(pollution) == "CO AQI"] <- "CO_aqi"
+head(pollution)
 ```
 
 ## Date
 Change the type of the variable "date" from a list to a date using **as.Date()** and make sure it's format is consistent
 ```{r}
+# Changes the type of date from list to a "date" & makes sure the format is consistently Month/Day/Year
 pollution$date <- as.Date(pollution$date, "%m/%d/%y")
 ```
 
 ## Create Tables with Primary Keys
 Create new tables for each pollutant and the location for each observation. Each table should have "site_id" as it's primary key.
 ```{r}
+# Create Location table
 Location <- tibble(site_id = pollution$site_id, state = pollution$state, county = pollution$county, city = pollution$city, date = pollution$date)
+head(Location)
 
+# Create NO2 table
 NO2 <- tibble(site_id = pollution$site_id,date = pollution$date, mean = pollution$NO2_mean, max_value = pollution$NO2_max_value, max_hour = pollution$NO2_max_hour, aqi = pollution$NO2_aqi)
+head(NO2)
 
+# Create O2 table
 O3 <- tibble(site_id = pollution$site_id,date = pollution$date, mean = pollution$O3_mean, max_value = pollution$O3_max_value, max_hour = pollution$O3_max_hour, aqi = pollution$O3_aqi)
+head(O3)
 
+# Create O2 table
 SO2 <- tibble(site_id = pollution$site_id,date = pollution$date, mean = pollution$SO2_mean, max_value = pollution$SO2_max_value, max_hour = pollution$SO2_max_hour, aqi = pollution$SO2_aqi)
+head(SO2)
 
+# Create CO table
 CO <- tibble(site_id = pollution$site_id,date = pollution$date, mean = pollution$CO_mean, max_value = pollution$CO_max_value, max_hour = pollution$CO_max_hour, aqi = pollution$CO_aqi)
+head(CO)
 ```
 
 # **Visualization**
@@ -124,45 +150,83 @@ Visualize the distribution of Air Quality Index in all four of the pollutants an
 ### AQI in Nitrogen Oxides
 We can visualize the air quality within nitrogen oxide by seeing how skewed the graph is. Most of the data is concentrated to the left, below 50. According to the Environmental Protection Agency (EPA), air quality with values 0 to 50 are considered good conditions. The higher the value, the higher the pollution in the air.
 ```{r}
-ggplot(data=NO2,aes(aqi)) + geom_density(kernel = "gaussian", color="blue") + labs(title="Distribution of Air Quality in Nitrogen Oxides",x="Air Quality Index",y="Density")
+# Create a density plot using geom_density()
+NO2_distribution <- ggplot(data=NO2,aes(aqi)) + geom_density(kernel = "gaussian", color="blue")
+
+# Beautify the graph
+NO2_distribution <- NO2_distribution + labs(title="Distribution of Air Quality in Nitrogen Oxides",x="Air Quality Index",y="Density")
+NO2_distribution
 ```
 
 ### AQI in Ozone
 The distribution of AQI for Ozone is similarly skewed with majority of the data falling at 50 or below. We can observe that at most locations the AQI for Ozone is around 25. According to the EPA an AQI of 0 to 50 in ozone are good air conditions.
 ```{r}
-ggplot(data=O3,aes(aqi)) + geom_density(kernel = "gaussian", color="blue") + labs(title="Distribution of Air Quality in the Ozone",x="Air Quality Index",y="Density")
+# Create a density plot using geom_density()
+O3_distribution <- ggplot(data=O3,aes(aqi)) + geom_density(kernel = "gaussian", color="blue")
+
+# Beautify graph
+O3_distribution <- O3_distribution + labs(title="Distribution of Air Quality in the Ozone",x="Air Quality Index",y="Density")
+O3_distribution
 ```
 
 ### AQI in Sulfur Dioxides
 The distribution of AQI in sulfur dioxides is low in majority of the data locations, majority of the data falls well below 25. According to the EPA an AQI of 0 to 50 in sulfur dioxides is considered good air quality.
 ```{r}
-ggplot(data=SO2,aes(aqi)) + geom_density(kernel = "gaussian", color="blue") + labs(title="Distribution of Air Quality in Sulfur Dioxides",x="Air Quality Index",y="Density")
+# Create a density plot using geom_density()
+SO2_distribution <- ggplot(data=SO2,aes(aqi)) + geom_density(kernel = "gaussian", color="blue")
+
+# Beatify graph
+SO2_distribution <- SO2_distribution + labs(title="Distribution of Air Quality in Sulfur Dioxides",x="Air Quality Index",y="Density")
+SO2_distribution
 ```
 
 ### AQI in Carbon Dioxides
 The distribution of air quality of Ozone here is skewed as well, majority of the data falls below 25. According to the EPA, AQI of Ozone between 0 and 50 have no health impacts and is considered good air quality.
 ```{r}
-ggplot(data=CO,aes(aqi)) + geom_density(kernel = "gaussian", color="blue") + labs(title="Distribution of Air Quality in Carbon Dioxide",x="Air Quality Index",y="Density")
+# Create a density plot using geom_density()
+CO_distribution <- ggplot(data=CO,aes(aqi)) + geom_density(kernel = "gaussian", color="blue")
+
+# Beautify graph
+CO_distribution <- CO_distribution + labs(title="Distribution of Air Quality in Carbon Dioxide",x="Air Quality Index",y="Density")
+CO_distribution
 ```
 
 ## Distribution of Means
 Visualizes the distribution of means among the four different pollutants. This graphically represents the average emission rate of each pollutant in the United States recorded daily in 8-hour intervals. All four graphs are heavily skewed with most data concentrated to the left.
 ### Means of Nitrogen Oxides
 ```{r}
-ggplot(data=NO2,aes(mean)) + geom_density(kernel = "gaussian", color="red") + labs(title="Distribution of Mean in Nitrogen Oxides",x="Mean",y="Density")
+# Create a density plot using geom_density()
+NO2_distribution <- ggplot(data=NO2,aes(mean)) + geom_density(kernel = "gaussian", color="red")
+
+# Beautify graph
+NO2_distribution <- NO2_distribution + labs(title="Distribution of Mean in Nitrogen Oxides",x="Mean",y="Density")
+NO2_distribution
 ```
 
 ### Means of Ozone
 ```{r}
-ggplot(data=O3,aes(mean)) + geom_density(kernel = "gaussian", color="red") + labs(title="Distribution of Mean in Ozone",x="Mean",y="Density")
+O3_distribution <- ggplot(data=O3,aes(mean)) + geom_density(kernel = "gaussian", color="red")
+O3_distribution <- O3_distribution + labs(title="Distribution of Mean in Ozone",x="Mean",y="Density")
 ```
 
+### Means of Sulfur Oxides
 ```{r}
-ggplot(data=SO2,aes(mean)) + geom_density(kernel = "gaussian", color="red") + labs(title="Distribution of Mean in Sulfur Oxides",x="Mean",y="Density")
+# Create a density plot using geom_density()
+SO2_distribution <- ggplot(data=SO2,aes(mean)) + geom_density(kernel = "gaussian", color="red")
+
+# Beautify graph
+SO2_distribution <- SO2_distribution + labs(title="Distribution of Mean in Sulfur Oxides",x="Mean",y="Density")
+SO2_distribution
 ```
 
+### Means of Carbon Dioxides
 ```{r}
-ggplot(data=CO,aes(mean)) + geom_density(kernel = "gaussian", color="red") + labs(title="Distribution of Mean in Carbon Dioxides",x="Mean",y="Density")
+# Create a density plot using geom_density()
+CO_distribution <- ggplot(data=CO,aes(mean)) + geom_density(kernel = "gaussian", color="red")
+
+# Beautify Graph
+CO_distribution <- CO_distribution + labs(title="Distribution of Mean in Carbon Dioxides",x="Mean",y="Density")
+CO_distribution
 ```
 
 # Research Questions
@@ -176,3 +240,6 @@ Seeing if air pollution has correlation on wildlife behaviors.
 
 ### Air Pollution Patterns
 How air pollution's behaviors change over time, as well as identify any patterns if the exist. This would further help answer the causes and solutions to air pollution.
+
+# Conlusion
+To recap this first phase, I want to mention what my intentions are with these datasets. Although it is a very interesting dataset, it is also very big and vague to really be effective. It would be interesting to see how each state performs when Carbon Emissions are measured by sectors rather than just states.

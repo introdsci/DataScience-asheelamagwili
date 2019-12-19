@@ -10,6 +10,8 @@ output:
 
 I am interested in looking into air pollution and the behavior of air pollutants over time. It would be interesting to see how this research relates to topics like climate change, wildlife, and depletion of the atmosphere.
 
+This portfolio looks into the behavior of air pollutants over time, specifically focusing on the correlation between different Inventory Sectors that are generally far apart in types like Energy and Foresty. Seeing and discovering how studies like this one could affect the behavior of society.
+
 ### 1. Discovery and Data Preparation
 
 In the first deliverable, the data is introduced, cleaned, and processed. This phase focuses on understanding the data and making it readable for others to understand as well.
